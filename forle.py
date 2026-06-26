@@ -118,7 +118,7 @@ async def dropitem(item):
 	for i in range(len(inventory)):
 		if inventory[i] == item:
 			print(f"are you sure you want to drop {item}? (y/n)")
-			command = await input("> ")
+			command = await input("")
 			command = command.lower()
 			if command == "y":
 				inventory[i] = ""
@@ -217,7 +217,7 @@ async def battle(name, atten, defen, hpen, expen, golden, type, drop, chance):
 	while True:
 		ea = False
 		print("what would you like to do")
-		command3 = await input("> ")
+		command3 = await input("")
 		if command3 == "attack":
 			ea = True
 			dmg = round((r.randint(1, (level[1]+bonusatt)*10) - r.randint(1, defen*3)) * (1 - defen / (defen + 10)))
@@ -313,7 +313,7 @@ async def battle(name, atten, defen, hpen, expen, golden, type, drop, chance):
 					print("you do not have enough mp to use this attack")
 		elif command3 == "stance":
 			print("what stance will you change to?\n1. power (att and hp exp)\n2. accurate (def and hp exp)\n3. balanced (all)")
-			command4 = await input("> ")
+			command4 = await input("")
 			if command4 == "1":
 				print("you are now in power stance")
 				stance = 1
@@ -346,7 +346,7 @@ async def battle(name, atten, defen, hpen, expen, golden, type, drop, chance):
 
 async def cook():
 	print("what recipe would you like to make")
-	command3 = await input("> ")
+	command3 = await input("")
 	command3 = command3.lower()
 	if command3 == "bread":
 		twotooneitem("flour", "water", "bread")
@@ -392,7 +392,7 @@ async def main():
 	print("welcome to forle, the world of adventure! type \"commands\" for a list of commands, \"examine\" to learn what is in the area you are currently in, \"attack\" to attack the monster in the area (if there is one) or \"interact x\" to interact with the xth item in the area's examine text")
 	print("you are currently in hopsy")
 	while True:
-		command = await input("> ")
+		command = await input("")
 		command = command.lower()
 		if command == "examine":
 			if x == 0 and y == 0:
@@ -423,7 +423,7 @@ async def main():
 					print(f"{n+1}. empty")
 		elif command in ("quit", "exit", "end"):
 			print("are you sure? (y/n)")
-			command2 = await input("> ")
+			command2 = await input("")
 			command2 = command2.lower()
 			if command2 == "y":
 				break
@@ -451,7 +451,7 @@ async def main():
 			elif x == -1 and y == -1:
 				if quest[0] == "start":
 					print('the hobgoblin speaks to you in a think goblinese accent and broken common, "you help us big human, i need you to go in library and get iron sword schematics. if you do it, i will give big money. you in?" (y/n)')
-					command2 = await input("> ")
+					command2 = await input("")
 					command2 = command2.lower()
 					if command2 == "y":
 						print('the hobgoblin bows in respect, "thank you big human for help"')
@@ -484,7 +484,7 @@ async def main():
 						print("there is no need to rest right now")
 					else:
 						print("would you like to stay the night for 12g? (y/n)")
-						command2 = await input("> ")
+						command2 = await input("")
 						command2 = command2.lower()
 						if command2 == "y":
 							gold -= 12
@@ -500,7 +500,7 @@ async def main():
 					if fishguildmembership == False:
 						if gold >= 35:
 							print('the guildmaster welcomes you, "welcome to the fishing guild! we can tell you are quite skilled at fishing, and we are always looking for new members. would you like to buy membership for 35g? (y/n)"')
-							command2 = await input("> ")
+							command2 = await input("")
 							command2 = command2.lower()
 							if command2 == "y":
 								fishguildmembership = True
@@ -568,7 +568,7 @@ async def main():
 			if x == 1 and y == -1:
 				if level[3] >= 10:
 					print('the shoprunner greets you, "thank you for coming to my shop! i buy cooked fish. to sell a fish, type "sell (fish)" and make sure you have the item!"')
-					command2 = await input("> ")
+					command2 = await input("")
 					command2 = command2.lower()
 					if command2.startswith("sell "):
 						if command2[5:] in ("carp", "trout", "pike"):
@@ -630,7 +630,7 @@ async def main():
 		elif command in ("attack", "interact attack", "i a", "i attack", "interact a"):
 			if (x, y) in fight:
 				print("are you sure you would like to begin combat? (y/n)")
-				command2 = await input("> ")
+				command2 = await input("")
 				command2 = command2.lower()
 				if command2 == "y":
 					if x == -1 and y == -1:
