@@ -427,6 +427,8 @@ async def main():
 					print("you are in the spider cave, you can see...\n1.massive spider mother\nENEMY: giant spider")
 				else:
 					print("you are in the spider cave. It is very dark and you can only see...\nENEMY: giant spider")
+			elif x == 2 and y == 1:
+				print("you are in the hospy seaport, you can see...\n1. portmaster\n2. elven ambassador\nENENEMY: merfolk")
 		elif command == "inventory":
 			print("INVENTORY")
 			for n in range(6):
@@ -577,6 +579,8 @@ async def main():
 						print("the spider tells you to finish your other task before helping her with hers")
 				else:
 					print("there is no interactable object in that slot")
+			elif x == 2 and y == 1:
+				print('the portmaster welcomes you, "welcome to your little port, now the boats are a bit of outta shape, so you won\'t be able to go anywhere sadly, sorry bout that"')
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 2", "interact two", "2", "two", "i 2", "i2"):
@@ -631,6 +635,8 @@ async def main():
 						print("you already own this item")
 				else:
 					print("you do not have enough money to buy anything here")
+			elif x == 2 and y == 1:
+				print('the elven ambassador speaks to you, "we are looking for some adventurers to help us in the eleven lands of the north, m!rte, but you not fit the bill, you don\'t even know magic"')
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 3", "interact three", "3", "three", "i 3", "i3"):
