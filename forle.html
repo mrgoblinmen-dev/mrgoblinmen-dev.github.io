@@ -35,20 +35,26 @@ body {
 <div id="status">loading python, please wait...</div>
 <div id="output"></div>
 <div id="input-row">
+  
   <input id="cmd" type="text" disabled autocomplete="off" />
 </div>
+
 <script>
 const output = document.getElementById('output');
 const cmdInput = document.getElementById('cmd');
 const status = document.getElementById('status');
+
 function appendText(text) {
   output.textContent += text + '\n';
   window.scrollTo(0, document.body.scrollHeight);
 }
+
 window.browser_print = function(text) {
   appendText(text);
 };
+
 let resolveInput = null;
+
 window.browser_input = async function(prompt) {
   if (prompt) appendText(prompt);
   cmdInput.disabled = false;
@@ -57,10 +63,11 @@ window.browser_input = async function(prompt) {
     resolveInput = resolve;
   });
 };
+
 cmdInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && resolveInput) {
     const val = cmdInput.value;
-    appendText('> ' + val);
+    appendText(val);
     cmdInput.value = '';
     cmdInput.disabled = true;
     const cb = resolveInput;
@@ -68,6 +75,7 @@ cmdInput.addEventListener('keydown', function(e) {
     cb(val);
   }
 });
+
 async function main() {
   await new Promise((resolve, reject) => {
     const s = document.createElement('script');
@@ -76,6 +84,7 @@ async function main() {
     s.onerror = reject;
     document.head.appendChild(s);
   });
+
   status.textContent = 'loading python runtime...';
   let pyodide;
   try {
@@ -86,6 +95,7 @@ async function main() {
     status.textContent = 'failed to load python: ' + e;
     return;
   }
+
   status.textContent = 'fetching game...';
   let gameCode;
   try {
@@ -96,9 +106,12 @@ async function main() {
     status.textContent = 'failed to fetch game: ' + e;
     return;
   }
+
   status.textContent = '';
+
   gameCode = gameCode.replace(/import asyncio\s*\nasyncio\.ensure_future\(main\(\)\)/g, '');
   gameCode = gameCode.replace(/asyncio\.ensure_future\(main\(\)\)/g, '');
+
   try {
     await pyodide.runPythonAsync(gameCode + '\nimport asyncio\nawait main()');
   } catch(e) {
@@ -110,6 +123,7 @@ async function main() {
     cmdInput.disabled = true;
   }
 }
+
 main();
 </script>
 </body>
