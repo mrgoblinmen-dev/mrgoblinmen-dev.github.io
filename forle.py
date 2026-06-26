@@ -658,6 +658,12 @@ async def main():
 				print("trout: raw trout + flour, heals 28hp")
 			if level[3] >= 15:
 				print("pike: raw pike + butter, heals 37hp")
+		elif command == "compass":
+			print(f"you are currently in: {locations.get((x, y))}")
+			print(f"to your north: {locations.get((x, y+1))}")
+			print(f"to your east: {locations.get((x+1, y))}")
+			print(f"to your south: {locations.get((x, y-1))}")
+			print(f"to your west: {locations.get((x-1, y))}")
 		else:
 			print(f'there is no function called "{command}", try a different command')
 		while exp[0] >= xp(level[0] + 1):
