@@ -533,7 +533,7 @@ async def main():
 				else:
 					print("you have no inventory slots available")
 			elif x == 1 and y == 0:
-				if gold >= 47:
+				if gold > 47:
 					if "amourstall" not in upgrades:
 						print("would you like to upgrade your amour for 48g (y/n)")
 						command2 = await input("")
@@ -545,8 +545,8 @@ async def main():
 							upgrades.append("amourstall")
 						else:
 							print("quite understandble")
-						else:
-							print("you already own this item")
+					else:
+						print("you already own this item")
 				else:
 					print("you do not have enough money to buy anything here")
 			elif x == -1 and y == 1:
@@ -557,8 +557,8 @@ async def main():
 						print('the spider bares its giant fangs, "thank you for this delivery puny human, here is the reward i promised"')
 						tasksdone.append("massivespidermother")
 						print("the spider spits it's acid on your sword, improving its offensive abilities")
-						task == "none"
-						currenttask == "none"
+						task = "none"
+						currenttask = "none"
 						bonusatt += 1
 					elif task == "massivespidermother" and taskamount != 0:
 						print(f'the spider reminds you of the {taskamount} goblins you still have to kill')
@@ -615,7 +615,7 @@ async def main():
 				else:
 					print("you do not have milk to turn into butter")
 			elif x == 1 and y == 0:
-				if gold >= 35:
+				if gold > 35:
 					if "weaponstall" not in upgrades:
 						print("would you like to upgrade your sword for 36g (y/n)")
 						command2 = await input("")
@@ -627,8 +627,8 @@ async def main():
 							upgrades.append("weaponstall")
 						else:
 							print("quite understandble")
-						else:
-							print("you already own this item")
+					else:
+						print("you already own this item")
 				else:
 					print("you do not have enough money to buy anything here")
 			else:
@@ -651,7 +651,7 @@ async def main():
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
 			elif x == 1 and y == 0:
-				if gold >= 19:
+				if gold > 19:
 					if "goggle" not in upgrades:
 						print("would you like to purchase night-vision goggles for 20g (y/n)")
 						command2 = await input("")
@@ -662,8 +662,8 @@ async def main():
 							upgrades.append("goggle")
 						else:
 							print("quite understandble")
-						else:
-							print("you already own this item")
+					else:
+						print("you already own this item")
 				else:
 					print("you do not have enough money to buy anything here")
 			else:
