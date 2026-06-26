@@ -6,7 +6,7 @@
 <style>
 body {
   background-image: url('https://sadhost.neocities.org/images/tiles/black.jpg');
-  color: lime;
+  color: white;
   font-family: monospace;
   font-size: 14px;
 }
@@ -19,7 +19,7 @@ body {
 }
 #cmd {
   background: black;
-  color: lime;
+  color: white;
   font-family: monospace;
   font-size: 14px;
   border: 1px solid white;
@@ -35,7 +35,6 @@ body {
 <div id="status">loading python, please wait...</div>
 <div id="output"></div>
 <div id="input-row">
-  <span>&gt;&nbsp;</span>
   <input id="cmd" type="text" disabled autocomplete="off" />
 </div>
 <script>
@@ -90,7 +89,7 @@ async function main() {
   status.textContent = 'fetching game...';
   let gameCode;
   try {
-    const resp = await fetch('forle.py');
+    const resp = await fetch('forle.txt');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     gameCode = await resp.text();
   } catch(e) {
