@@ -19,6 +19,7 @@ level = [10, 1, 1, 1]
 exp = [908, 0, 0, 0]
 skill = ["hitpoints", "attack", "defence", "fishing"]
 inventory = ["" ,"", "", "", "", ""]
+upgrades = []
 gold = 0
 fishguildmembership = False
 immovable = 0
@@ -26,6 +27,7 @@ stance = 1
 task = "none"
 currenttask = "none"
 taskamount = 0
+tasksdone = []
 bonusatt = 0
 bonusdef = 0
 spec = 1
@@ -33,6 +35,7 @@ fight = [(-1, -1), (-1, 1), (0, -1), (2, 1), (2, 0)]
 edible = ["bread", "carp", "trout", "pike", "cake", "slice of cake"]
 locations = {(-1, -1): "goblin outpost", (-1, 0): "wheat field", (-1, 1): "spider cave", (0, -1): "william lake", (0, 0): "hospy", (0, 1): "hospy library", (1, -1): "fishing guild", (1, 0): "hospy market", (1, 1): "purple goblin inn", (2, 0): "hospy diary farm", (2, 1): "w.h. seaport", (-2, 1): "sea", (-2, 0): "sea", (-2, -1): "sea", (-1, 2): "sea", (-1, -2): "sea", (0, 2): "sea", (0, -2): "sea", (1, 2): "sea", (2, -2): "sea", (2, 2): "sea", (2, -2): "sea", (3, 1): "sea", (3, 0): "sea"}
 quest = ["start"]
+titles = ["noble adventurer"]
 
 def drops(drop, chance):
 	rand = r.randint(1, chance)
@@ -68,14 +71,15 @@ def switchitem(item1, item2):
 			return
 
 def sellitem(item):
-	global true, inventory
-	true = False
-	for i in range(len(inventory)):
-		if inventory[i] == item:
-			inventory[i] = ""
-			print(f"you have sold {item}")
-			return
-	print(f"you do not have {item}")
+    global true, inventory
+    true = False
+    for i in range(len(inventory)):
+        if inventory[i] == item:
+            inventory[i] = ""
+            true = True
+            print(f"you have sold {item}")
+            return
+    print(f"you do not have {item}")
 
 def twotooneitem(item1, item2, item3):
 	global true, inventory
@@ -416,6 +420,13 @@ async def main():
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
 			elif x == 2 and y == 0:
 				print("you are in the one and only hospy diary farm, you can see...\n1. diary cow\n2. churn\nENEMY: bull")
+			elif x == 1 and y == 0:
+				print("you are currently in the bustling hospy market, you can see...\n1. amour stall\n2. weapon stall\n3. mable's oddities")
+			elif x == -1 and y == 1:
+				if "goggle" in upgrades:
+					print("you are in the spider cave, you can see...\n1.massive spider mother\nENEMY: giant spider")
+				else:
+					print("you are in the spider cave. It is very dark and you can only see...\nENEMY: giant spider")
 		elif command == "inventory":
 			print("INVENTORY")
 			for n in range(6):
@@ -506,6 +517,7 @@ async def main():
 							command2 = command2.lower()
 							if command2 == "y":
 								fishguildmembership = True
+								titles.append("member of fishing guild")
 							else:
 								print('the guildmaster sighs, "that\'s completely understandable"')
 						else:
@@ -514,6 +526,57 @@ async def main():
 						print('gary welcomes you back to the guild')
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
+			elif x == 2 and y == 0:
+				additem("milk")
+				if true == True:
+					print("you grab a bucket and milk the diary cow")
+				else:
+					print("you have no inventory slots available")
+			elif x == 1 and y == 0:
+				if gold >= 47:
+					if "amourstall" not in upgrades:
+						print("would you like to upgrade your amour for 48g (y/n)")
+						command2 = await input("")
+						command2 = command2.lower()
+						if command2 == "y":
+							print("you upgrade your amour and you feel more safe")
+							gold -= 48
+							bonusdef += 1
+							upgrades.append("amourstall")
+						else:
+							print("quite understandble")
+						else:
+							print("you already own this item")
+				else:
+					print("you do not have enough money to buy anything here")
+			elif x == -1 and y == 1:
+				if "goggle" in upgrades:
+					if "massivespidermother" in tasksdone:
+						print('the spider looks over you and says, "you have done everything i need you to do"')
+					elif task == "massivespidermother" and taskamount == 0:
+						print('the spider bares its giant fangs, "thank you for this delivery puny human, here is the reward i promised"')
+						tasksdone.append("massivespidermother")
+						print("the spider spits it's acid on your sword, improving its offensive abilities")
+						task == "none"
+						currenttask == "none"
+						bonusatt += 1
+					elif task == "massivespidermother" and taskamount != 0:
+						print(f'the spider reminds you of the {taskamount} goblins you still have to kill')
+					elif task == "none":
+						print('the spider speaks to you, "would you like to collect me some goblin bodies, maybe 12, and i\' give you a reward (y/n)"')
+						command2 = await input("")
+						command2 = command2.lower()
+						if command2 == "y":
+							task = "massivespidermother"
+							currenttask = "goblin"
+							taskamount = 12
+							print('the spider says, "thank you human"')
+						else:
+							print('the spider says, "i\'ll know you will back, puny human"')
+					else:
+						print("the spider tells you to finish your other task before helping her with hers")
+				else:
+					print("there is no interactable object in that slot")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 2", "interact two", "2", "two", "i 2", "i2"):
@@ -545,6 +608,29 @@ async def main():
 					fish("trout")
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
+			elif x == 2 and y == 0:
+				switchitem("milk", "butter")
+				if true == True:
+					print("you churn the milk into some creamy butter")
+				else:
+					print("you do not have milk to turn into butter")
+			elif x == 1 and y == 0:
+				if gold >= 35:
+					if "weaponstall" not in upgrades:
+						print("would you like to upgrade your sword for 36g (y/n)")
+						command2 = await input("")
+						command2 = command2.lower()
+						if command2 == "y":
+							print("you upgrade your sword and you feel more powerful")
+							gold -= 36
+							bonusatt += 1
+							upgrades.append("weaponstall")
+						else:
+							print("quite understandble")
+						else:
+							print("you already own this item")
+				else:
+					print("you do not have enough money to buy anything here")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 3", "interact three", "3", "three", "i 3", "i3"):
@@ -564,6 +650,22 @@ async def main():
 						print("you cannot fishing in this spot, come back when you are a higher fishing level")
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
+			elif x == 1 and y == 0:
+				if gold >= 19:
+					if "goggle" not in upgrades:
+						print("would you like to purchase night-vision goggles for 20g (y/n)")
+						command2 = await input("")
+						command2 = command2.lower()
+						if command2 == "y":
+							print("you purchase and put the goggles on, everything seems so bright!")
+							gold -= 20
+							upgrades.append("goggle")
+						else:
+							print("quite understandble")
+						else:
+							print("you already own this item")
+				else:
+					print("you do not have enough money to buy anything here")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 4", "interact four", "4", "four", "i 4", "i4"):
