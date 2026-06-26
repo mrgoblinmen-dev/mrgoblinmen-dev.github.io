@@ -212,6 +212,7 @@ def fish(fishable):
 				print("there is no room for you to keep the pike and you lose out on some exp")
 		else:
 			print("you failed to catch the pike")
+
 async def battle(name, atten, defen, hpen, expen, golden, type, drop, chance):
 	global hp, gold, exp, stance, task, currenttask, taskamount, bonusatt, bonusdef, mp, inventory
 	while True:
@@ -386,6 +387,7 @@ async def cook():
 			print("you do not have all the ingredients to make this recipe")
 	else:
 		print("that is not a name of a recipe, to find a list of recipes, type \"cookbook\"")
+
 async def main():
 	global x, y, hp, maxhp, mp, maxmp, true, level, exp, inventory, gold, fishguildmembership, immovable, stance, task, currenttask, taskamount, bonusatt, bonusdef, spec, quest
 
