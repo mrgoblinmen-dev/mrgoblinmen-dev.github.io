@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>forle</title>
+<style>
+body {
+  background-image: url('https://sadhost.neocities.org/images/tiles/black.jpg');
+  color: lime;
+  font-family: monospace;
+  font-size: 14px;
+}
+#output {
+  white-space: pre-wrap;
+  margin-bottom: 8px;
+}
+#input-row {
+  display: flex;
+}
+#cmd {
+  background: black;
+  color: lime;
+  font-family: monospace;
+  font-size: 14px;
+  border: 1px solid white;
+  width: 400px;
+}
+#status {
+  color: gray;
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+<div id="status">loading python, please wait...</div>
+<div id="output"></div>
+<div id="input-row">
+  <span>&gt;&nbsp;</span>
+  <input id="cmd" type="text" disabled autocomplete="off" />
+</div>
+<script>
+const output = document.getElementById('output');
+const cmdInput = document.getElementById('cmd');
+const status = document.getElementById('status');
+function appendText(text) {
+  output.textContent += text + '\n';
+  window.scrollTo(0, document.body.scrollHeight);
+}
+window.browser_print = function(text) {
+  appendText(text);
+};
+let resolveInput = null;
+window.browser_input = async function(prompt) {
+  if (prompt) appendText(prompt);
+  cmdInput.disabled = false;
+  cmdInput.focus();
+  return new Promise((resolve) => {
+    resolveInput = resolve;
+  });
+};
+cmdInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && resolveInput) {
+    const val = cmdInput.value;
+    appendText('> ' + val);
+    cmdInput.value = '';
+    cmdInput.disabled = true;
+    const cb = resolveInput;
+    resolveInput = null;
+    cb(val);
+  }
+});
+async function main() {
+  await new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js';
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  status.textContent = 'loading python runtime...';
+  let pyodide;
+  try {
+    pyodide = await loadPyodide({
+      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/'
+    });
+  } catch(e) {
+    status.textContent = 'failed to load python: ' + e;
+    return;
+  }
+  status.textContent = 'fetching game...';
+  let gameCode;
+  try {
+    const resp = await fetch('forle.txt');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    gameCode = await resp.text();
+  } catch(e) {
+    status.textContent = 'failed to fetch game: ' + e;
+    return;
+  }
+  status.textContent = '';
+  gameCode = gameCode.replace(/import asyncio\s*\nasyncio\.ensure_future\(main\(\)\)/g, '');
+  gameCode = gameCode.replace(/asyncio\.ensure_future\(main\(\)\)/g, '');
+  try {
+    await pyodide.runPythonAsync(gameCode + '\nimport asyncio\nawait main()');
+  } catch(e) {
+    if (String(e).includes('SystemExit')) {
+      appendText('\n[ game ended. refresh to play again. ]');
+    } else {
+      appendText('\nerror: ' + e);
+    }
+    cmdInput.disabled = true;
+  }
+}
+main();
+</script>
+</body>
+</html>
