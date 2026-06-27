@@ -32,9 +32,10 @@ bonusatt = 0
 bonusdef = 0
 spec = 1
 fight = [(-1, -1), (-1, 1), (0, -1), (2, 1), (2, 0)]
-edible = ["bread", "carp", "trout", "pike", "cake", "slice of cake"]
-locations = {(-1, -1): "goblin outpost", (-1, 0): "wheat field", (-1, 1): "spider cave", (0, -1): "william lake", (0, 0): "hospy", (0, 1): "hospy library", (1, -1): "fishing guild", (1, 0): "hospy market", (1, 1): "purple goblin inn", (2, 0): "hospy diary farm", (2, 1): "w.h. seaport", (-2, 1): "sea", (-2, 0): "sea", (-2, -1): "sea", (-1, 2): "sea", (-1, -2): "sea", (0, 2): "sea", (0, -2): "sea", (1, 2): "sea", (2, -2): "sea", (2, 2): "sea", (2, -2): "sea", (3, 1): "sea", (3, 0): "sea",  (2, -1): "sea",}
-quest = ["start"]
+edible = ["bread", "carp", "trout", "pike", "cake", "slice of cake", "beef"]
+locations = {(-1, -1): "goblin outpost", (-1, 0): "wheat field", (-1, 1): "spider cave", (0, -1): "william lake", (0, 0): "hospy", (0, 1): "hospy library", (1, -1): "fishing guild", (1, 0): "hospy market", (1, 1): "purple goblin inn", (2, 0): "hospy farm", (2, 1): "w.h. seaport", (-2, 1): "sea", (-2, 0): "sea", (-2, -1): "sea", (-1, 2): "sea", (-1, -2): "sea", (0, 2): "sea", (0, -2): "sea", (1, 2): "sea", (2, -2): "sea", (2, 2): "sea", (2, -2): "sea", (3, 1): "sea", (3, 0): "sea",  (2, -1): "sea", (6, 6): "loogustia harbor", (6, 7): "sea", (6, 5): "sea", (7, 6): "sea", (5, 6): "sea"}
+quest = ["start", "start"]
+undropable = ["summoning rune", "charged summoning rune"]
 titles = ["noble adventurer"]
 
 def drops(drop, chance):
@@ -51,6 +52,43 @@ def xp(level):
 	for x in range(level-2):
 		need += m.floor(x + (70 * (2 ** (x / 7))))
 	return need
+
+async def death(name, expen, golden, types, drop, chance):
+	global gold, stance, exp, inventory, task, currenttask, taskamount
+	print(f"you have killed the {name} gaining {expen} exp and {golden} gold")
+	gold += golden
+	if stance == 1:
+		stancerand = r.randint(1,2)
+		if stancerand == 1:
+			exp[0] += m.floor(expen/2)
+			exp[1] += m.ceil(expen/2)
+		else:
+			exp[0] += m.ceil(expen/2)
+			exp[1] += m.floor(expen/2)
+	elif stance == 2:
+		stancerand = r.randint(1,2)
+		if stancerand == 1:
+			exp[0] += m.floor(expen/2)
+			exp[2] += m.ceil(expen/2)
+		else:
+			exp[0] += m.ceil(expen/2)
+			exp[2] += m.floor(expen/2)
+	else:
+		exp[0] += m.floor(expen/3)
+		exp[1] += m.floor(expen/3)
+		exp[2] += m.floor(expen/3)
+	if types == currenttask:
+		if taskamount == 0:
+			print("you have already finished the task")
+		elif taskamount == 1:
+			taskamount = 0
+			print(f"you have finished your {task} task. go back to your task master to reap the rewards")
+		else:
+			taskamount -= 1
+			print(f"you have contributed to your task, only {taskamount} to go")
+	if chance != 0:
+		drops(drop, chance)
+	return
 
 def additem(item):
 	global true, inventory
@@ -80,6 +118,13 @@ def sellitem(item):
             print(f"you have sold {item}")
             return
     print(f"you do not have {item}")
+
+def removeitem(item):
+    global inventory
+    for i in range(len(inventory)):
+        if inventory[i] == item:
+            inventory[i] = ""
+            return
 
 def twotooneitem(item1, item2, item3):
 	global true, inventory
@@ -167,6 +212,8 @@ def eatitem(item):
 					return
 				elif item == "slice of cake":
 					hp += 16
+				elif item == "beef":
+					hp += 15
 				print(f"you eat the {item}")
 				maxedhp()
 				inventory[i] = ""
@@ -217,7 +264,7 @@ def fish(fishable):
 		else:
 			print("you failed to catch the pike")
 
-async def battle(name, atten, defen, hpen, expen, golden, type, drop, chance):
+async def battle(name, atten, defen, hpen, expen, golden, types, drop, chance):
 	global hp, gold, exp, stance, task, currenttask, taskamount, bonusatt, bonusdef, mp, inventory
 	while True:
 		ea = False
@@ -232,40 +279,8 @@ async def battle(name, atten, defen, hpen, expen, golden, type, drop, chance):
 			if hpen < 0:
 				hpen = 0
 			print(f"you dealt {dmg} damage, leaving the {name} at {hpen}")
-			if hpen == 0:
-				print(f"you have killed the {name} gaining {expen} exp and {golden} gold")
-				gold += golden
-				if stance == 1:
-					stancerand = r.randint(1,2)
-					if stancerand == 1:
-						exp[0] += m.floor(expen/2)
-						exp[1] += m.ceil(expen/2)
-					else:
-						exp[0] += m.ceil(expen/2)
-						exp[1] += m.floor(expen/2)
-				elif stance == 2:
-					stancerand = r.randint(1,2)
-					if stancerand == 1:
-						exp[0] += m.floor(expen/2)
-						exp[2] += m.ceil(expen/2)
-					else:
-						exp[0] += m.ceil(expen/2)
-						exp[2] += m.floor(expen/2)
-				else:
-					exp[0] += m.floor(expen/3)
-					exp[1] += m.floor(expen/3)
-					exp[2] += m.floor(expen/3)
-				if type == currenttask:
-					if taskamount == 0:
-						print("you have already finished the task")
-					elif taskamount == 1:
-						taskamount = 0
-						print(f"you have finished your {task} task. go back to your task master to reap the rewards")
-					else:
-						taskamount -= 1
-						print(f"you have contributed to your task, only {taskamount} to go")
-				if chance != 0:
-					drops(drop, chance)
+			if hpen < 1:
+				await death(name, expen, golden, types, drop, chance)
 				return
 		elif command3 == "special attack":
 			if spec == 1:
@@ -279,40 +294,8 @@ async def battle(name, atten, defen, hpen, expen, golden, type, drop, chance):
 					if hpen < 0:
 						hpen = 0
 					print(f"you dealt {dmg} damage, leaving the {name} at {hpen}")
-					if hpen == 0:
-						print(f"you have killed the {name} gaining {expen} exp and {golden} gold")
-						gold += golden
-						if stance == 1:
-							stancerand = r.randint(1,2)
-							if stancerand == 1:
-								exp[0] += m.floor(expen/2)
-								exp[1] += m.ceil(expen/2)
-							else:
-								exp[0] += m.ceil(expen/2)
-								exp[1] += m.floor(expen/2)
-						elif stance == 2:
-							stancerand = r.randint(1,2)
-							if stancerand == 1:
-								exp[0] += m.floor(expen/2)
-								exp[2] += m.ceil(expen/2)
-							else:
-								exp[0] += m.ceil(expen/2)
-								exp[2] += m.floor(expen/2)
-						else:
-							exp[0] += m.floor(expen/3)
-							exp[1] += m.floor(expen/3)
-							exp[2] += m.floor(expen/3)
-						if type == currenttask:
-							if taskamount == 0:
-								print("you have already finished the task")
-							elif taskamount == 1:
-								taskamount = 0
-								print(f"you have finished your {task} task. go back to your task master to reap the rewards")
-							else:
-								taskamount -= 1
-								print(f"you have contributed to your task, only {taskamount} to go")
-						if chance != 0:
-							drops(drop, chance)
+					if hpen < 1:
+						await death(name, expen, golden, types, drop, chance)
 						return
 				else:
 					print("you do not have enough mp to use this attack")
@@ -348,6 +331,26 @@ async def battle(name, atten, defen, hpen, expen, golden, type, drop, chance):
 			print("oh no! you've died...")
 			return
 		print(f"you have {mp}mp left")
+
+async def craft():
+	print("what item would you like to make")
+	command3 = await input("")
+	command3 = command3.lower()
+	if command3 == "candle":
+		switchitem("wax", "candle")
+		if true == True:
+			print("you successfully made a candle")
+		else:
+			print("you do not have the wax to make the candle")
+	elif command3 == "charged summoning rune":
+		twotooneitem("summoning rune", "raw beef", "charged summoning rune")
+		if true == True:
+			print("you successfully charge the summoning rune. it cackles with demonic energy")
+			quest[1] = "ready"
+		else:
+			print("you cannot charge the rune")
+	else:
+		print("that is not a name of a item you can make, to find a list of items you can make, type \"crafting\"")
 
 async def cook():
 	print("what recipe would you like to make")
@@ -389,6 +392,12 @@ async def cook():
 			print("you successfully made a cake")
 		else:
 			print("you do not have all the ingredients to make this recipe")
+	elif command3 == "beef":
+		switchitem("raw beef", "beef")
+		if true == True:
+			print("you successfully cooked the beef")
+		else:
+			print("you do not have all the ingredients to make this recipe")
 	else:
 		print("that is not a name of a recipe, to find a list of recipes, type \"cookbook\"")
 
@@ -404,7 +413,7 @@ async def main():
 			if x == 0 and y == 0:
 				print("you are in hospy, where every adventure begins. around you, you can see...\n1. a statue\n2. a combat instructor\n3. the mayor.")
 			elif x == 0 and y == 1:
-				print("you are in the hospy library. around you, there are...\n1. bookshelves \n2. librarian")
+				print("you are in the hospy library. around you, there are...\n1. bookshelves \n2. librarian\n3. craftsmen's workshop")
 			elif x == -1 and y == -1:
 				print("you are in the goblin outpost outside of hospy, you can see some worker goblins and...\n1. hobgoblin leader\nENEMY: goblin mugger")
 			elif x == -1 and y == 0:
@@ -412,23 +421,23 @@ async def main():
 			elif x == 1 and y == 1:
 				print("you are in the purple goblin inn, there is only a...\n1. innkeep")
 			elif x == 0 and y == -1:
-				print("you are on william lake, there is a...\n1. carp fishing spot\n2. fireplace\n3. spot\nENEMY: hobgoblin fisher")
+				print("you are on william lake, there is a...\n1. carp fishing spot\n2. fireplace\n3. well\nENEMY: hobgoblin fisher")
 			elif x == 1 and y == -1:
 				if level[3] >= 10:
 					print("you are in the fishing guild, there is...\n1. gary, guild leader\n2. trout fishing spot\n3. pike fishing spot\n4. fish exchange")
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
 			elif x == 2 and y == 0:
-				print("you are in the one and only hospy diary farm, you can see...\n1. diary cow\n2. churn\nENEMY: bull")
+				print("you are in the one and only hospy farm, you can see...\n1. dairy cow\n2. churn\n3. beehives\nENEMY: bull")
 			elif x == 1 and y == 0:
-				print("you are currently in the bustling hospy market, you can see...\n1. amour stall\n2. weapon stall\n3. mable's oddities")
+				print("you are currently in the bustling hospy market, you can see...\n1. armour stall\n2. weapon stall\n3. mable's oddities")
 			elif x == -1 and y == 1:
 				if "goggle" in upgrades:
 					print("you are in the spider cave, you can see...\n1.massive spider mother\nENEMY: giant spider")
 				else:
 					print("you are in the spider cave. It is very dark and you can only see...\nENEMY: giant spider")
 			elif x == 2 and y == 1:
-				print("you are in the hospy seaport, you can see...\n1. portmaster\n2. elven ambassador\nENENEMY: merfolk")
+				print("you are in the william hospy seaport, you can see...\n1. portmaster\n2. elven ambassador\nENEMY: merfolk")
 		elif command == "inventory":
 			print("INVENTORY")
 			for n in range(6):
@@ -443,9 +452,15 @@ async def main():
 			if command2 == "y":
 				break
 		elif command.startswith("drop all "):
-			dropallitem(command[9:])
+			if command[9:] not in undropable:
+				dropallitem(command[9:])
+			else:
+				print("you can't drop all that")
 		elif command.startswith("drop "):
-			await dropitem(command[5:])
+			if command[5:] not in undropable:
+				await dropitem(command[5:])
+			else:
+				print("you can't drop that")
 		elif command.startswith("eat "):
 			eatitem(command[4:])
 		elif command == "stats":
@@ -453,13 +468,13 @@ async def main():
 			for n in range(len(skill)):
 				print(f"{skill[n]}: you are currently level {level[n]}, you have {exp[n]}exp and need {xp(level[n] + 1) - exp[n]}exp more to level up")
 		elif command == "commands":
-			print('NORMAL COMMANDS:\ncommands: get a list of commands\nexamine: learn the interactable objects in the area you are currently in\ninteract (x)/(x)/i (x): interact with the (x)th object in the area (listed in the area\'s examine text)\nattack: begin a battle with the enemy in the area (if there is one)\nnorth/n/up/u: go north\neast/e/right/r: go east\nsouth/s/down/d: go south\nwest/w/left/l: go west\ngold/g: check how much gold you have\ninventory: check your inventory\nquit/exit/end: quit the game\ncookbook: get a list of recipes learned\ndrop (item): remove an instance of (item) from your inventory (if you have one)\ndrop all (item): remove all instances of (item) from your inventory\neat (item): eat a item (if edible) and heal back some hp/mp\nstats: get a list of your stats\nBATTLE COMMANDS:\nattack: use your normal attack (you will be attacked back)\nstance: change your stance to change what exp you get\nspecial attack: perform your special attack (you will be attacked back)\nspecial check: check what your special attack is\neat (item): eat a item (if edible) and heal back some hp/mp')
+			print('NORMAL COMMANDS:\ncommands: get a list of commands\nexamine: learn the interactable objects in the area you are currently in\ninteract (x)/(x)/i (x): interact with the (x)th object in the area (listed in the area\'s examine text)\nattack: begin a battle with the enemy in the area (if there is one)\nnorth/n/up/u: go north\neast/e/right/r: go east\nsouth/s/down/d: go south\nwest/w/left/l: go west\ngold/g: check how much gold you have\ninventory: check your inventory\nquit/exit/end: quit the game\ncookbook: get a list of recipes learned\ncrafting: get a list of items you can make at crafting facilities\ndrop (item): remove an instance of (item) from your inventory (if you have one)\ndrop all (item): remove all instances of (item) from your inventory\neat (item): eat a item (if edible) and heal back some hp/mp\nstats: get a list of your stats\ncompass: learn what area you are in and the areas around you\nBATTLE COMMANDS:\nattack: use your normal attack (you will be attacked back)\nstance: change your stance to change what exp you get\nspecial attack: perform your special attack (you will be attacked back)\nspecial check: check what your special attack is\neat (item): eat a item (if edible) and heal back some hp/mp')
 		elif command in ("interact 1", "interact one", "1", "one", "i 1", "i1"):
 			if x == 0 and y == 0:
 				print('the plaque on the statue reads "william hospy (6.342 - 6.385), founder of hospy, father of too many, and master explorer"')
 			elif x == 0 and y == 1:
 				if quest[0] == "shelf":
-					print("you search the shelves and find a book named \"iron weaponery schematics\", but just as you go to take it out, the librarian comes up to you, \"don't do it! don't give those goblins that book. last week they sent a fool like you to get a book on raiding and we lost our month's wheat supply! just please don't do it. i have a plan, but let's go... somewhere more private.\"")
+					print("you search the shelves and find a book named \"iron weaponry schematics\", but just as you go to take it out, the librarian comes up to you, \"don't do it! don't give those goblins that book. last week they sent a fool like you to get a book on raiding and we lost our month's wheat supply! just please don't do it. i have a plan, but let's go... somewhere more private.\"")
 					quest[0] = "schematics"
 				else:
 					print("nothing here intrests you at all. just old dusty history books and stuff")
@@ -474,13 +489,13 @@ async def main():
 					else:
 						print('the hobgoblin ignores you')
 				elif quest[0] == "schematics":
-					print('you see his eye light up as he sees you carring the book, "thanks much for this! here reward as promised." he hands you a small bag of coins (30)')
+					print('you see his eye light up as he sees you carrying the book, "thanks much for this! here reward as promised." he hands you a small bag of coins (30)')
 					gold += 30
 					quest[0] = "goblinfinish"
 				elif quest[0] == "goblinfinish":
 					print("the hobgoblin points and says to a goblin worker, \"that one, that one is ally, don't attack him... he help alot\"")
 				elif quest[0] == "fake":
-					print('you see his eye light up as he sees you carring the book, "thanks much for this! here reward as promised." he hands you a small bag of coins (30)')
+					print('you see his eye light up as he sees you carrying the book, "thanks much for this! here reward as promised." he hands you a small bag of coins (30)')
 					gold += 30
 					quest[0] = "fakefinish"
 				elif quest[0] == "fakefinish":
@@ -519,13 +534,32 @@ async def main():
 							command2 = command2.lower()
 							if command2 == "y":
 								fishguildmembership = True
+								gold -= 35
 								titles.append("member of fishing guild")
 							else:
 								print('the guildmaster sighs, "that\'s completely understandable"')
 						else:
 							print('the guildmaster welcomes you, "welcome to the fishing guild! we can tell you are quite skilled at fishing, and we are always looking for new members. but membership is quite pricey (35g), so come back when you are a little, mmmm.... richer"')
 					else:
-						print('gary welcomes you back to the guild')
+						if quest[1] == "summon2" and  "rune" not in upgrades:
+							print('the guildmaster says, "here is that rune"')
+							additem("summoning rune")
+							if true == True:
+    							print("gary hands you an demonic summoning rune")
+								upgrades.append("rune")
+							else:
+    							print("gary tries to hand you a summoning rune, but your inventory is full")
+						if quest[1] == "summon":
+							print('you ask gary about the rune, "well since you\'re a guildmember, i can trust you that you will not do anything wrong with it. here is the rune, though it does require one thing, to charge it up, you must feed it quote \'the flesh of a bovine\' at a crafting table. good luck"')
+							quest[1] = "summon2"
+							additem("summoning rune")
+							if true == True:
+    							print("gary hands you an demonic summoning rune")
+								upgrades.append("rune")
+							else:
+    							print("gary tries to hand you a summoning rune, but your inventory is full")
+						else:
+							print('gary welcomes you back to the guild')
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
 			elif x == 2 and y == 0:
@@ -536,17 +570,17 @@ async def main():
 					print("you have no inventory slots available")
 			elif x == 1 and y == 0:
 				if gold > 47:
-					if "amourstall" not in upgrades:
-						print("would you like to upgrade your amour for 48g (y/n)")
+					if "armourstall" not in upgrades:
+						print("would you like to upgrade your armour for 48g (y/n)")
 						command2 = await input("")
 						command2 = command2.lower()
 						if command2 == "y":
-							print("you upgrade your amour and you feel more safe")
+							print("you upgrade your armour and you feel more safe")
 							gold -= 48
 							bonusdef += 1
-							upgrades.append("amourstall")
+							upgrades.append("armourstall")
 						else:
-							print("quite understandble")
+							print("quite understandable")
 					else:
 						print("you already own this item")
 				else:
@@ -580,7 +614,44 @@ async def main():
 				else:
 					print("there is no interactable object in that slot")
 			elif x == 2 and y == 1:
-				print('the portmaster welcomes you, "welcome to your little port, now the boats are a bit of outta shape, so you won\'t be able to go anywhere sadly, sorry bout that"')
+				if quest[1] == "start":
+					print('the portmaster welcomes you to the w.h. port, "i would suggest you one of these boat, but the only way of getting to go to the mainland is to do something of \'grand importance\', so i was wondering if you could help me fake a crisis for you to solve. you up for it? (y/n)"')
+					command2 = await input("")
+					command2 = command2.lower()
+					if command2 == "y":
+						print('the portmaster\'s face lights up, "thank you so much, i would suggest talking to the librarian west of here about summoning monsters, that sounds crisislike right?"')
+						quest[1] = "crisis"
+					else:
+						print('the portmaster says, "thanks for listenin\' mate"')
+				elif quest[1] == "crisis":
+					print('the portmaster asks, "have you gone to the librarian and learnt about summoning yet? if not go do that now"')
+				elif quest[1] in ("summon", "summon2"):
+					print('you tell the portmaster about the demon, rune, and the candles, "you can get some wax for the candles to the south of \'ere you know"')
+				elif quest[1] == "ready":
+					print('you talking about you success with charging the rune, "what are you doing here then you donce! go and summon it"')
+				elif quest[1] == "impkilled":
+					print('the portmaster looks proud, "i saw what you did out there young skipper, well done indeed, i would say that they would let you on the the mainland now."')
+					quest[1] = "finished"
+					print('he says, "i could give you a one-time free trip to loogustia port. would you like that? (y/n)"')
+					command2 = await input("")
+					command2 = command2.lower()
+					if command2 == "y":
+						print("you take a short boat trip to loogustia as you see the mainland for the first time")
+						x = 6
+						y = 6
+						print("you are in loogustia port")
+				else:
+					if gold > 11:
+						print("would you like to go to loogutsia port for 12g (y/n)?")
+						command2 = await input("")
+						command2 = command2.lower()
+						if command2 == "y":
+							gold -= 12
+							print("you take a short boat trip to loogustia as you see the mainland")
+							x = 6
+							y = 6
+					else:
+						print("you do not have enough money for a boat trip")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 2", "interact two", "2", "two", "i 2", "i2"):
@@ -590,10 +661,18 @@ async def main():
 				if quest[0] == "schematics":
 					print('the librarian whispers into your ear, looking around for others, "i will make you a fake iron sword schematic and you will give it to the goblins. when they try to make the iron swords, they won\'t be cool and will be unusable. and they will be none the wiser!" he quickly whips up the schematic and gives it to you')
 					quest[0] = "fake"
+				elif quest[0] == "goblinfinish" and quest[1] == "crisis":
+					print('the librarian looks mad at you, "i know i shouldn\'t help you because you helped those digusting monsters, but i can tell you really want to go to the mainland. what you\'ll need to do to start a crisis is to summon a demon in the middle of town, all you\'ll need is 4 candles lit in a circle, a special demonic rune (which gary the guildmaster might know a thing or two about), and type "gusto permo hosti". and that\'s all! now get out"')
+					quest[1] = "summon"
+					print('you are now in hospy')
+					y = 0
 				elif quest[0] == "goblinfinish":
 					print('the librarian yells, "get out of the library!"')
 					print('you are now in hospy')
 					y = 0
+				elif quest[1] == "crisis":
+					print('you tell the librarian about the port, and he seems eager to help, "what you\'ll need to do to start a crisis is to summon a demon in the middle of town, all you\'ll need is 4 candles lit in a circle, a special demonic rune (which gary the guildmaster might know a thing or two about), and type "gusto permo hosti". and that\'s all! i wish you all the luck, all of it"')
+					quest[1] = "summon"
 				elif quest[0] == "fakefinish":
 					print('you tell him the goblins fell for the trick. \"thank kop that was close! if i didn\'t intervene, we may have been doomed!\"')
 					quest[0] = "truefinish"
@@ -630,13 +709,13 @@ async def main():
 							bonusatt += 1
 							upgrades.append("weaponstall")
 						else:
-							print("quite understandble")
+							print("quite understandable")
 					else:
 						print("you already own this item")
 				else:
 					print("you do not have enough money to buy anything here")
 			elif x == 2 and y == 1:
-				print('the elven ambassador speaks to you, "we are looking for some adventurers to help us in the eleven lands of the north, m!rte, but you not fit the bill, you don\'t even know magic"')
+				print('the elven ambassador speaks to you, "we are looking for some adventurers to help us in the elven lands of the north, m!rte, but you not fit the bill, you don\'t even know magic"')
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 3", "interact three", "3", "three", "i 3", "i3"):
@@ -667,11 +746,19 @@ async def main():
 							gold -= 20
 							upgrades.append("goggle")
 						else:
-							print("quite understandble")
+							print("quite understandable")
 					else:
 						print("you already own this item")
 				else:
 					print("you do not have enough money to buy anything here")
+			elif x == 2 and y == 0:
+				additem("wax")
+				if true == True:
+					print("you carefully collect some wax from the bee hive")
+				else:
+					print("you have no inventory slots available")
+			elif x == 0 and y == 1:
+				await craft()
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 4", "interact four", "4", "four", "i 4", "i4"):
@@ -752,20 +839,50 @@ async def main():
 					elif x == 2 and y == 1:
 						await battle("merfolk", 3, 1, 45, 72, 10, "seabeast", "raw carp", 4)
 					elif x == 2 and y == 0:
-						await battle("bull", 1, 1, 24, 10, 1, "lifestock", "raw beef", 1)
+						await battle("bull", 1, 1, 24, 10, 1, "livestock", "raw beef", 1)
 				else:
 					print("understandable")
 			else:
 				print("there is no-one here to fight")
+		elif command == "gusto permo hosti":
+			if quest [1] == "ready": 
+				if x == 0 and y == 0:
+					if inventory.count("candle") >= 4 and "charged summoning rune" in inventory:
+    					print("you place the candles in a circle and recite the words")
+						print('a small imp raises up from the ground, as the mayor sighs, "i don\'t have time for this"')
+						print("a battle begins!")
+						for t in range(4):
+							removeitem("candle")
+						removeitem("charged summoning rune")
+						await battle("small imp", 3, 2, 66, 198, 15, "demon", "", 0)
+						print("you have stopped a crisis!")
+						titles.append("crisis stopper")
+						quest[1] = "impkilled"
+					else:
+    					print("you don't have everything you need, you need...\n1. 4 candles\n2. a charged summoning rune")
+				else:
+					print("you have to do this in the town hall")
+			elif quest[1] in ("finished", "impkilled"):
+				print("why even try to do it again?!")
+			elif quest[1] in ("summon", "summon2"):
+				print("you are not ready")
+			else:
+				print("what are you saying?!")
 		elif command == "cookbook":
 			print("RECIPES LEARNED")
 			print("bread: water + flour, heals 25hp")
 			print("carp: raw carp, heals 19hp")
-			print("cake: wheat + milk + eggs, heals 16hp, leaves a slice which also heals 16hp")
+			print("cake: flour + milk + eggs, heals 16hp, leaves a slice which also heals 16hp")
+			print("beef: raw beef, heals 15hp")
 			if level[3] >= 10:
 				print("trout: raw trout + flour, heals 28hp")
 			if level[3] >= 15:
 				print("pike: raw pike + butter, heals 37hp")
+		elif command == "crafting":
+			print("RECIPES LEARNED")
+			print("candle: wax")
+			if "rune" in upgrades:
+				print("charged summoning rune: summoning rune + raw beef") 
 		elif command == "compass":
 			print(f"you are currently in: {locations.get((x, y))}")
 			print(f"to your north: {locations.get((x, y+1))}")
