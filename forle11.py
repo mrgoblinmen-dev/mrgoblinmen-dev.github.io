@@ -859,7 +859,7 @@ async def main():
 						titles.append("crisis stopper")
 						quest[1] = "impkilled"
 					else:
-    					print("you don't have everything you need, you need...\n1. 4 candles\n2. a charged summoning rune")
+						print("you don't have everything you need, you need...\n1. 4 candles\n2. a charged summoning rune")
 				else:
 					print("you have to do this in the town hall")
 			elif quest[1] in ("finished", "impkilled"):
