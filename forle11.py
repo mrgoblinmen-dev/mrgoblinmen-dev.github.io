@@ -848,7 +848,7 @@ async def main():
 			if quest [1] == "ready": 
 				if x == 0 and y == 0:
 					if inventory.count("candle") >= 4 and "charged summoning rune" in inventory:
-    					print("you place the candles in a circle and recite the words")
+						print("you place the candles in a circle and recite the words")
 						print('a small imp raises up from the ground, as the mayor sighs, "i don\'t have time for this"')
 						print("a battle begins!")
 						for t in range(4):
