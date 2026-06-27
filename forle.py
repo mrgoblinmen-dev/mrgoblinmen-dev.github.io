@@ -554,10 +554,10 @@ async def main():
 							quest[1] = "summon2"
 							additem("summoning rune")
 							if true == True:
-    							print("gary hands you an demonic summoning rune")
+								print("gary hands you an demonic summoning rune")
 								upgrades.append("rune")
 							else:
-    							print("gary tries to hand you a summoning rune, but your inventory is full")
+								print("gary tries to hand you a summoning rune, but your inventory is full")
 						else:
 							print('gary welcomes you back to the guild')
 				else:
