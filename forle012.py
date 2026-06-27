@@ -548,7 +548,7 @@ async def main():
 								print("gary hands you an demonic summoning rune")
 								upgrades.append("rune")
 							else:
-    							print("gary tries to hand you a summoning rune, but your inventory is full")
+								print("gary tries to hand you a summoning rune, but your inventory is full")
 						if quest[1] == "summon":
 							print('you ask gary about the rune, "well since you\'re a guildmember, i can trust you that you will not do anything wrong with it. here is the rune, though it does require one thing, to charge it up, you must feed it quote \'the flesh of a bovine\' at a crafting table. good luck"')
 							quest[1] = "summon2"
