@@ -545,7 +545,7 @@ async def main():
 							print('the guildmaster says, "here is that rune"')
 							additem("summoning rune")
 							if true == True:
-    							print("gary hands you an demonic summoning rune")
+								print("gary hands you an demonic summoning rune")
 								upgrades.append("rune")
 							else:
     							print("gary tries to hand you a summoning rune, but your inventory is full")
