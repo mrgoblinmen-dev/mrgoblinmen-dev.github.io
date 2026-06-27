@@ -99,7 +99,7 @@ async function main() {
   status.textContent = 'fetching game...';
   let gameCode;
   try {
-    const resp = await fetch('forle.py');
+    const resp = await fetch('forle11.py');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     gameCode = await resp.text();
   } catch(e) {
