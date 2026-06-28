@@ -31,9 +31,9 @@ tasksdone = []
 bonusatt = 0
 bonusdef = 0
 spec = 1
-fight = [(-1, -1), (-1, 1), (0, -1), (2, 1), (2, 0)]
-edible = ["bread", "carp", "trout", "pike", "cake", "slice of cake", "beef"]
-locations = {(-1, -1): "goblin outpost", (-1, 0): "wheat field", (-1, 1): "spider cave", (0, -1): "william lake", (0, 0): "hospy", (0, 1): "hospy library", (1, -1): "fishing guild", (1, 0): "hospy market", (1, 1): "purple goblin inn", (2, 0): "hospy farm", (2, 1): "w.h. seaport", (-2, 1): "sea", (-2, 0): "sea", (-2, -1): "sea", (-1, 2): "sea", (-1, -2): "sea", (0, 2): "sea", (0, -2): "sea", (1, 2): "sea", (2, -2): "sea", (2, 2): "sea", (2, -2): "sea", (3, 1): "sea", (3, 0): "sea",  (2, -1): "sea", (6, 6): "loogustia harbor", (6, 7): "sea", (6, 5): "sea", (7, 6): "sea", (5, 6): "sea"}
+fight = [(-1, -1), (-1, 1), (0, -1), (2, 1), (2, 0), (6, 6)]
+edible = ["bread", "carp", "trout", "pike", "cake", "slice of cake", "beef", "anchovies"]
+locations = {(-1, -1): "goblin outpost", (-1, 0): "wheat field", (-1, 1): "spider cave", (0, -1): "william lake", (0, 0): "hospy", (0, 1): "hospy library", (1, -1): "fishing guild", (1, -2): "sea", (1, 0): "hospy market", (1, 1): "purple goblin inn", (2, 0): "hospy farm", (2, 1): "w.h. seaport", (-2, 1): "sea", (-2, 0): "sea", (-2, -1): "sea", (-1, 2): "sea", (-1, -2): "sea", (0, 2): "sea", (0, -2): "sea", (1, 2): "sea", (2, -2): "sea", (2, 2): "sea", (3, 1): "sea", (3, 0): "sea",  (2, -1): "sea", (6, 6): "loogustia harbor", (6, 7): "northloog beach", (6, 8): "wall", (7, 5): "wall", (7, 7): "wall", (8, 6): "wall", (6, 5): "sea", (7, 6): "adventurer's campsite", (5, 6): "sea"}
 quest = ["start", "start"]
 undropable = ["summoning rune", "charged summoning rune"]
 titles = ["noble adventurer"]
@@ -214,6 +214,8 @@ def eatitem(item):
 					hp += 16
 				elif item == "beef":
 					hp += 15
+				elif item == "anchovies":
+					hp += 46
 				print(f"you eat the {item}")
 				maxedhp()
 				inventory[i] = ""
@@ -263,8 +265,19 @@ def fish(fishable):
 				print("there is no room for you to keep the pike and you lose out on some exp")
 		else:
 			print("you failed to catch the pike")
+	elif fishable == "anchovies":
+		random = r.randint(1, level[3]+10)
+		if random > 28:
+			additem("raw anchovies")
+			if true == True:
+				print("you catch a raw anchovies and gain some exp")
+				exp[3] += 45
+			else:
+				print("there is no room for you to keep the anchovies and you lose out on some exp")
+		else:
+			print("you failed to catch the anchovies")
 
-async def battle(name, atten, defen, hpen, expen, golden, types, drop, chance):
+async def battle(name, atten, defen, hpen, expen, golden, types, drop, chance, attacking):
 	global hp, gold, exp, stance, task, currenttask, taskamount, bonusatt, bonusdef, mp, inventory
 	while True:
 		ea = False
@@ -319,7 +332,7 @@ async def battle(name, atten, defen, hpen, expen, golden, types, drop, chance):
 		elif command3.startswith("eat "):
 			eatitem(command3[4:])
 			ea = true
-		if ea == True:
+		if ea == True and attacking != 1:
 			dmgen = round((r.randint(1, atten*10) - r.randint(1, (level[2]+bonusdef)*3)) * (1 - (level[2]+bonusdef) / ((level[2]+bonusdef) + 10)))
 			if dmgen < 1:
 				dmgen = 1
@@ -349,6 +362,22 @@ async def craft():
 			quest[1] = "ready"
 		else:
 			print("you cannot charge the rune")
+	elif command3 == "fishing net part":
+		if inventory.count("seaweed") >= 3:
+			for t in range(3):
+				removeitem("seaweed")
+			additem("fishing net part")
+			print("you weave together the seaweed and create a fishing net part")
+		else:
+			print("you do not have enough seaweed")
+	elif command3 == "fishing net":
+		if inventory.count("fishing net part") >= 4:
+			for t in range(4):
+				removeitem("fishing net part")
+			additem("fishing net")
+			print("you expertly create a fishing net out of the seaweed parts")
+		else:
+			print("you do not have enough fishing net parts")
 	else:
 		print("that is not a name of a item you can make, to find a list of items you can make, type \"crafting\"")
 
@@ -398,6 +427,12 @@ async def cook():
 			print("you successfully cooked the beef")
 		else:
 			print("you do not have all the ingredients to make this recipe")
+	elif command3 == "anchovies":
+		threetooneitem("raw anchovies", "egg", "butter", "anchovies")
+		if true == True:
+			print("you successfully made some great looking anchovies")
+		else:
+			print("you do not have all the ingredients to make this recipe")
 	else:
 		print("that is not a name of a recipe, to find a list of recipes, type \"cookbook\"")
 
@@ -413,7 +448,7 @@ async def main():
 			if x == 0 and y == 0:
 				print("you are in hospy, where every adventure begins. around you, you can see...\n1. a statue\n2. a combat instructor\n3. the mayor.")
 			elif x == 0 and y == 1:
-				print("you are in the hospy library. around you, there are...\n1. bookshelves \n2. librarian\n3. craftsmen's workshop")
+				print("you are in the hospy library. around you, there are...\n1. bookshelves \n2. librarian\n3. craftsman's workshop")
 			elif x == -1 and y == -1:
 				print("you are in the goblin outpost outside of hospy, you can see some worker goblins and...\n1. hobgoblin leader\nENEMY: goblin mugger")
 			elif x == -1 and y == 0:
@@ -428,7 +463,7 @@ async def main():
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
 			elif x == 2 and y == 0:
-				print("you are in the one and only hospy farm, you can see...\n1. dairy cow\n2. churn\n3. beehives\nENEMY: bull")
+				print("you are in the one and only hospy farm, you can see...\n1. dairy cow\n2. churn\n3. beehives\n4. chicken coop\nENEMY: bull")
 			elif x == 1 and y == 0:
 				print("you are currently in the bustling hospy market, you can see...\n1. armour stall\n2. weapon stall\n3. mable's oddities")
 			elif x == -1 and y == 1:
@@ -438,6 +473,12 @@ async def main():
 					print("you are in the spider cave. It is very dark and you can only see...\nENEMY: giant spider")
 			elif x == 2 and y == 1:
 				print("you are in the william hospy seaport, you can see...\n1. portmaster\n2. elven ambassador\nENEMY: merfolk")
+			elif x == 6 and y == 6:
+				print("you are in the loogustia harbour, you can see...\n1. portmaster\n2. local guide\n3. gem merchant\nENEMY: siren")
+			elif x == 6 and y == 7:
+				print("you are at the northloog beach, you can see...\n1. seaweed\n2. net fishing spot")
+			elif x == 7 and y == 6:
+				print("you are in the adventurer's campsite, you can see...\n1. campfire\n2. workbench\n3. trout fishing spot\nENEMY?: punching bag")
 		elif command == "inventory":
 			print("INVENTORY")
 			for n in range(6):
@@ -642,7 +683,7 @@ async def main():
 						print("you are in loogustia port")
 				else:
 					if gold > 11:
-						print("would you like to go to loogutsia port for 12g (y/n)?")
+						print("would you like to go to loogutsia harbour for 12g (y/n)?")
 						command2 = await input("")
 						command2 = command2.lower()
 						if command2 == "y":
@@ -652,6 +693,26 @@ async def main():
 							y = 6
 					else:
 						print("you do not have enough money for a boat trip")
+			elif x == 6 and y == 6:
+				if gold > 11:
+					print("would you like to go to w.h. port for 12g (y/n)?")
+					command2 = await input("")
+					command2 = command2.lower()
+					if command2 == "y":
+						gold -= 12
+						print("you take a short boat trip to the small island of hospy")
+						x = 2
+						y = 1
+				else:
+					print("you do not have enough money for a boat trip")
+			elif x == 7 and y == 6:
+				await cook()
+			elif x == 6 and y == 7:
+				additem("seaweed")
+				if true == True:
+					print("you grab a handleful of seaweed")
+				else:
+					print("you have no inventory slots available")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 2", "interact two", "2", "two", "i 2", "i2"):
@@ -716,6 +777,18 @@ async def main():
 					print("you do not have enough money to buy anything here")
 			elif x == 2 and y == 1:
 				print('the elven ambassador speaks to you, "we are looking for some adventurers to help us in the elven lands of the north, m!rte, but you not fit the bill, you don\'t even know magic"')
+			elif x == 6 and y == 6:
+				print('the local guide welcomes you to the mainland, "loogustia is a small seaside town, but we are still home to some extraordinary things! like one of only 3 wizard towers on the whole of the mainland, and the oldest town hall aswell"')
+			elif x == 7 and y == 6:
+				await craft()
+			elif x == 6 and y == 7:
+				if "fishing net" in inventory:
+					if level[3] >= 20:
+						fish("anchovies")
+					else:
+						print("you cannot fishing in this spot, come back when you are a higher fishing level")
+				else:
+					print("you do not have a fishing net so you cannot fish here")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 3", "interact three", "3", "three", "i 3", "i3"):
@@ -759,6 +832,23 @@ async def main():
 					print("you have no inventory slots available")
 			elif x == 0 and y == 1:
 				await craft()
+			elif x == 6 and y == 6:
+				print('the merchant greets you, "you got any gems to sell? i pay a pretty penny for gems you know. to sell a gem, type "sell (gem)" and make sure you have the item!"')
+				command2 = await input("")
+				command2 = command2.lower()
+				if command2.startswith("sell "):
+					if command2[5:] in ("pearl"):
+						sellitem(command2[5:])
+						if true == True:
+							if command2[5:] == "pearl":
+								print("you gain 30 gold")
+								gold += 30
+					else:
+						print("you cannot sell this item here")
+				else:
+					print("you can't do this here")
+			elif x == 7 and y == 6:
+				fish("trout")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 4", "interact four", "4", "four", "i 4", "i4"):
@@ -768,7 +858,7 @@ async def main():
 					command2 = await input("")
 					command2 = command2.lower()
 					if command2.startswith("sell "):
-						if command2[5:] in ("carp", "trout", "pike"):
+						if command2[5:] in ("carp", "trout", "pike", "anchovies"):
 							sellitem(command2[5:])
 							if true == True:
 								if command2[5:] == "carp":
@@ -780,17 +870,28 @@ async def main():
 								elif command2[5:] == "pike":
 									print("you gain 4 gold")
 									gold += 4
+								elif command2[5:] == "anchovies":
+									print("you gain 6 gold")
+									gold += 6
 						else:
 							print("you cannot sell this item here")
 					else:
 						print("you can't do this here")
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
+			elif x == 2 and y == 1:
+				additem("egg")
+				if true == True:
+					print("you grab an egg from the coop")
+				else:
+					print("you have no inventory slots available")
+			else:
+				print("there is no interactable object in that slot")
 		elif command in ("gold", "g"):
 			print(f"you have {gold} gold")
 		elif command in ("north", "n", "up", "u"):
 			if immovable == 0:
-				if locations.get((x, y+1)) != "sea":
+				if locations.get((x, y+1)) not in ("sea", "wall"):
 					y += 1
 					print(f"you move north and end up in {locations.get((x, y))}")
 				else:
@@ -799,7 +900,7 @@ async def main():
 				print("you cannot move from this area")
 		elif command in ("south", "s", "down", "d"):
 			if immovable == 0:
-				if locations.get((x, y-1)) != "sea":
+				if locations.get((x, y-1)) not in ("sea", "wall"):
 					y -= 1
 					print(f"you move south and end up in {locations.get((x, y))}")
 				else:
@@ -808,7 +909,7 @@ async def main():
 				print("you cannot move from this area")
 		elif command in ("east", "e", "right", "r"):
 			if immovable == 0:
-				if locations.get((x+1, y)) != "sea":
+				if locations.get((x+1, y)) not in ("sea", "wall"):
 					x += 1
 					print(f"you move east and end up in {locations.get((x, y))}")
 				else:
@@ -817,7 +918,7 @@ async def main():
 				print("you cannot move from this area")
 		elif command in ("west", "w", "left", "l"):
 			if immovable == 0:
-				if locations.get((x-1, y)) != "sea":
+				if locations.get((x-1, y)) not in ("sea", "wall"):
 					x -= 1
 					print(f"you move west and end up in {locations.get((x, y))}")
 				else:
@@ -831,15 +932,19 @@ async def main():
 				command2 = command2.lower()
 				if command2 == "y":
 					if x == -1 and y == -1:
-						await battle("goblin mugger", 1, 1, 35, 30, 4, "goblin", "", 0)
+						await battle("goblin mugger", 1, 1, 35, 30, 4, "goblin", "", 0, 0)
 					elif x == -1 and y == 1:
-						await battle("giant spider", 1, 1, 10, 15, 2, "spider", "", 0)
+						await battle("giant spider", 1, 1, 10, 15, 2, "spider", "", 0, 0)
 					elif x == 0 and y == -1:
-						await battle("hobgoblin fisher", 2, 2, 40, 65, 8, "goblin", "", 0)
+						await battle("hobgoblin fisher", 2, 2, 40, 65, 8, "goblin", "", 0, 0)
 					elif x == 2 and y == 1:
-						await battle("merfolk", 3, 1, 45, 72, 10, "seabeast", "raw carp", 4)
+						await battle("merfolk", 3, 1, 45, 72, 10, "seabeast", "raw carp", 4, 0)
 					elif x == 2 and y == 0:
-						await battle("bull", 1, 1, 24, 10, 1, "livestock", "raw beef", 1)
+						await battle("bull", 1, 1, 24, 10, 1, "livestock", "raw beef", 1, 0)
+					elif x == 6 and y == 6:
+						await battle("siren", 2, 3, 55, 75, 12,"seabeast", "pearl", 5, 0)
+					elif x == 7 and y == 6:
+						await battle("punching bag", 0, 1, 100, 0, 0, "nothing", "", 0, 1)
 				else:
 					print("understandable")
 			else:
@@ -854,7 +959,7 @@ async def main():
 						for t in range(4):
 							removeitem("candle")
 						removeitem("charged summoning rune")
-						await battle("small imp", 3, 2, 66, 198, 15, "demon", "", 0)
+						await battle("small imp", 3, 2, 66, 198, 15, "demon", "", 0, 0)
 						print("you have stopped a crisis!")
 						titles.append("crisis stopper")
 						quest[1] = "impkilled"
@@ -878,11 +983,16 @@ async def main():
 				print("trout: raw trout + flour, heals 28hp")
 			if level[3] >= 15:
 				print("pike: raw pike + butter, heals 37hp")
+			if level[3] >= 20:
+				print("anchovies: raw anchovies + egg + butter, heals 46hp")
 		elif command == "crafting":
 			print("RECIPES LEARNED")
 			print("candle: wax")
 			if "rune" in upgrades:
 				print("charged summoning rune: summoning rune + raw beef") 
+			if fishguildmembership == True:
+				print("fishing net part: seaweed + seaweed + seaweed")
+				print("fishing net: fishing net part + fishing net part + fishing net part + fishing net part")
 		elif command == "compass":
 			print(f"you are currently in: {locations.get((x, y))}")
 			print(f"to your north: {locations.get((x, y+1))}")
