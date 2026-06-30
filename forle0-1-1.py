@@ -853,7 +853,7 @@ async def main():
 					print("you churn the milk into some creamy butter")
 				else:
 					print("you do not have milk to turn into butter")
-			elif x == and 6 y == 8:
+			elif x == 6 and y == 8:
 				gather("wood")
 			else:
 				print("there is no interactable object in that slot")
