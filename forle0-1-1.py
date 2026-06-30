@@ -15,9 +15,10 @@ maxhp = 100
 mp = 100
 maxmp = 100
 true = False
-level = [10, 1, 1, 1]
-exp = [908, 0, 0, 0]
-skill = ["hitpoints", "attack", "defence", "fishing"]
+level = [10, 1, 1, 1, 1, 1, 10]
+exp = [908, 0, 0, 0, 0, 0, 908]
+skill = ["hitpoints", "attack", "defence", "fishing", "gathering", "mining", "magic"]
+skillsunlocked = 6
 inventory = ["" ,"", "", "", "", ""]
 upgrades = []
 gold = 0
@@ -32,8 +33,8 @@ bonusatt = 0
 bonusdef = 0
 spec = 1
 fight = [(-1, -1), (-1, 1), (0, -1), (2, 1), (2, 0), (6, 6)]
-edible = ["bread", "carp", "trout", "pike", "cake", "slice of cake", "beef", "anchovies"]
-locations = {(-1, -1): "goblin outpost", (-1, 0): "wheat field", (-1, 1): "spider cave", (0, -1): "william lake", (0, 0): "hospy", (0, 1): "hospy library", (1, -1): "fishing guild", (1, -2): "sea", (1, 0): "hospy market", (1, 1): "purple goblin inn", (2, 0): "hospy farm", (2, 1): "w.h. seaport", (-2, 1): "sea", (-2, 0): "sea", (-2, -1): "sea", (-1, 2): "sea", (-1, -2): "sea", (0, 2): "sea", (0, -2): "sea", (1, 2): "sea", (2, -2): "sea", (2, 2): "sea", (3, 1): "sea", (3, 0): "sea",  (2, -1): "sea", (6, 6): "loogustia harbor", (6, 7): "northloog beach", (6, 8): "wall", (7, 5): "wall", (7, 7): "wall", (8, 6): "wall", (6, 5): "sea", (7, 6): "adventurer's campsite", (5, 6): "sea"}
+edible = ["bread", "carp", "trout", "pike", "cake", "slice of cake", "beef", "anchovies", "purpleberry pie", "piece of purpleberry pie"]
+locations = {(-1, -1): "goblin outpost", (-1, 0): "wheat field", (-1, 1): "spider cave", (0, -1): "william lake", (0, 0): "hospy", (0, 1): "hospy library", (1, -1): "fishing guild", (1, -2): "sea", (1, 0): "hospy market", (1, 1): "purple goblin inn", (2, 0): "hospy farm", (2, 1): "w.h. seaport", (-2, 1): "sea", (-2, 0): "sea", (-2, -1): "sea", (-1, 2): "sea", (-1, -2): "sea", (0, 2): "sea", (0, -2): "sea", (1, 2): "sea", (2, -2): "sea", (2, 2): "sea", (3, 1): "sea", (3, 0): "sea",  (2, -1): "sea", (6, 6): "loogustia harbor", (6, 7): "northloog beach", (6, 8): "open field", (5, 8): "sea", (6, 9): "wall",  (7, 5): "wall", (7, 7): "loogustia dairy farm", (8, 7): "wall", (7, 8): "wall", (8, 6): "wall", (6, 5): "sea", (7, 6): "adventurer's campsite", (5, 6): "sea"}
 quest = ["start", "start"]
 undropable = ["summoning rune", "charged summoning rune"]
 titles = ["noble adventurer"]
@@ -212,6 +213,14 @@ def eatitem(item):
 					return
 				elif item == "slice of cake":
 					hp += 16
+				elif item == "":
+					print("a piece of purpleberry pie remains")
+					inventory[i] = "piece of purpleberry pie"
+					true = True
+					maxedhp()
+					return
+				elif item == "piece of purpleberry pie":
+					mp += 10
 				elif item == "beef":
 					hp += 15
 				elif item == "anchovies":
@@ -230,9 +239,9 @@ def maxedhp():
 	if hp > maxhp:
 		hp = maxhp
 
-def fish(fishable):
+def gather(gatherable):
 	global level, exp, true
-	if fishable == "carp":
+	if gatherable == "carp":
 		random = r.randint(1, level[3]+10)
 		if random > 8:
 			additem("raw carp")
@@ -243,7 +252,7 @@ def fish(fishable):
 				print("there is no room for you to keep the carp and you lose out on some exp")
 		else:
 			print("you failed to catch the carp")
-	elif fishable == "trout":
+	elif gatherable == "trout":
 		random = r.randint(1, level[3]+10)
 		if random > 16:
 			additem("raw trout")
@@ -254,7 +263,7 @@ def fish(fishable):
 				print("there is no room for you to keep the trout and you lose out on some exp")
 		else:
 			print("you failed to catch the trout")
-	elif fishable == "pike":
+	elif gatherable == "pike":
 		random = r.randint(1, level[3]+10)
 		if random > 22:
 			additem("raw pike")
@@ -265,7 +274,7 @@ def fish(fishable):
 				print("there is no room for you to keep the pike and you lose out on some exp")
 		else:
 			print("you failed to catch the pike")
-	elif fishable == "anchovies":
+	elif gatherable == "anchovies":
 		random = r.randint(1, level[3]+10)
 		if random > 28:
 			additem("raw anchovies")
@@ -276,6 +285,35 @@ def fish(fishable):
 				print("there is no room for you to keep the anchovies and you lose out on some exp")
 		else:
 			print("you failed to catch the anchovies")
+	elif gatherable == "purpleberry":
+		random = r.randint(1, level[4]+5)
+		if random > 4:
+			additem("purpleberry")
+			if true == True:
+				print("you carefully grab a purpleberry from the bush and gain some exp")
+				exp[4] += 16
+			else:
+				print("there is no room for you to keep the purpleberry and you lose out on some exp")
+		else:
+			random = r.randint(1, 3)
+			if random == 3:
+				print("youch! you prick yourself on the bush and lose 5hp")
+				hp -= 5
+				if hp < 1:
+					print("oh no! you've died...")
+			else:
+				print("you failed to grab the berry")
+	elif gatherable == "wood":
+		random = r.randint(1, level[4]+5)
+		if random > 4:
+			additem("wood")
+			if true == True:
+				print("you chop of a piece of wood and gain some exp")
+				exp[4] += 9
+			else:
+				print("there is no room for you to keep the wood piece and you lose out on some exp")
+		else:
+			print("you failed to grab the berry")
 
 async def battle(name, atten, defen, hpen, expen, golden, types, drop, chance, attacking):
 	global hp, gold, exp, stance, task, currenttask, taskamount, bonusatt, bonusdef, mp, inventory
@@ -433,11 +471,17 @@ async def cook():
 			print("you successfully made some great looking anchovies")
 		else:
 			print("you do not have all the ingredients to make this recipe")
+	elif command3 == "purpleberry pie":
+		threetooneitem("flour", "water", "purpleberry", "purpleberry pie")
+		if true == True:
+			print("you successfully made a purpleberry pie")
+		else:
+			print("you do not have all the ingredients to make this recipe")
 	else:
 		print("that is not a name of a recipe, to find a list of recipes, type \"cookbook\"")
 
 async def main():
-	global x, y, hp, maxhp, mp, maxmp, true, level, exp, inventory, gold, fishguildmembership, immovable, stance, task, currenttask, taskamount, bonusatt, bonusdef, spec, quest
+	global x, y, hp, maxhp, mp, maxmp, true, level, exp, inventory, gold, fishguildmembership, immovable, stance, task, currenttask, taskamount, bonusatt, bonusdef, spec, quest, skillsunlocked
 
 	print("welcome to forle, the world of adventure! type \"commands\" for a list of commands, \"examine\" to learn what is in the area you are currently in, \"attack\" to attack the monster in the area (if there is one) or \"interact x\" to interact with the xth item in the area's examine text")
 	print("you are currently in hopsy")
@@ -450,9 +494,9 @@ async def main():
 			elif x == 0 and y == 1:
 				print("you are in the hospy library. around you, there are...\n1. bookshelves \n2. librarian\n3. craftsman's workshop")
 			elif x == -1 and y == -1:
-				print("you are in the goblin outpost outside of hospy, you can see some worker goblins and...\n1. hobgoblin leader\nENEMY: goblin mugger")
+				print("you are in the goblin outpost outside of hospy, you can see some worker goblins and...\n1. hobgoblin leader\n2. purpleberry plant\nENEMY: goblin mugger")
 			elif x == -1 and y == 0:
-				print("you are in a wheat field, it is very barren but you can see...\n1. wheat \n2. watermill")
+				print("you are in a wheat field, it is very barren but you can see...\n1. wheat \n2. watermill\n3. tree")
 			elif x == 1 and y == 1:
 				print("you are in the purple goblin inn, there is only a...\n1. innkeep")
 			elif x == 0 and y == -1:
@@ -479,6 +523,10 @@ async def main():
 				print("you are at the northloog beach, you can see...\n1. seaweed\n2. net fishing spot")
 			elif x == 7 and y == 6:
 				print("you are in the adventurer's campsite, you can see...\n1. campfire\n2. workbench\n3. trout fishing spot\nENEMY?: punching bag")
+			elif x == 7 and y == 7:
+				print("you are in the loogustia dairy farm, you can see...\n1. dairy cow\n2. churn\n3. cheese press")
+			elif x == 6 and y == 8:
+				print("you are an open field, you can see...\n1. wandering mage\n2. tree\nENEMY: ogre")
 		elif command == "inventory":
 			print("INVENTORY")
 			for n in range(6):
@@ -506,7 +554,7 @@ async def main():
 			eatitem(command[4:])
 		elif command == "stats":
 			print(f"HP: {hp}/{maxhp}\nMP: {mp}/{maxmp}\n\nSTATS")
-			for n in range(len(skill)):
+			for n in range(skillsunlocked):
 				print(f"{skill[n]}: you are currently level {level[n]}, you have {exp[n]}exp and need {xp(level[n] + 1) - exp[n]}exp more to level up")
 		elif command == "commands":
 			print('NORMAL COMMANDS:\ncommands: get a list of commands\nexamine: learn the interactable objects in the area you are currently in\ninteract (x)/(x)/i (x): interact with the (x)th object in the area (listed in the area\'s examine text)\nattack: begin a battle with the enemy in the area (if there is one)\nnorth/n/up/u: go north\neast/e/right/r: go east\nsouth/s/down/d: go south\nwest/w/left/l: go west\ngold/g: check how much gold you have\ninventory: check your inventory\nquit/exit/end: quit the game\ncookbook: get a list of recipes learned\ncrafting: get a list of items you can make at crafting facilities\ndrop (item): remove an instance of (item) from your inventory (if you have one)\ndrop all (item): remove all instances of (item) from your inventory\neat (item): eat a item (if edible) and heal back some hp/mp\nstats: get a list of your stats\ncompass: learn what area you are in and the areas around you\nBATTLE COMMANDS:\nattack: use your normal attack (you will be attacked back)\nstance: change your stance to change what exp you get\nspecial attack: perform your special attack (you will be attacked back)\nspecial check: check what your special attack is\neat (item): eat a item (if edible) and heal back some hp/mp')
@@ -565,7 +613,7 @@ async def main():
 				else:
 					print("you don't have enough for a room")
 			elif x == 0 and y == -1:
-				fish("carp")
+				gather("carp")
 			elif x == 1 and y == -1:
 				if level[3] >= 10:
 					if fishguildmembership == False:
@@ -713,6 +761,14 @@ async def main():
 					print("you grab a handleful of seaweed")
 				else:
 					print("you have no inventory slots available")
+			elif x == 7 and y == 7:
+				additem("milk")
+				if true == True:
+					print("you grab a bucket and milk the diary cow")
+				else:
+					print("you have no inventory slots available")
+			elif x == 6 and y == 8:
+				print("the mage scrambles around, looking for some sort of item. they are deep in focus and shouldn't be bothered")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 2", "interact two", "2", "two", "i 2", "i2"):
@@ -745,11 +801,13 @@ async def main():
 					print("you grind the wheat into flour")
 				else:
 					print("you do not have wheat to turn into flour")
+			elif x == -1 and y == -1:
+				gather("purpleberry")
 			elif x == 0 and y == -1:
 				await cook()
 			elif x == 1 and y == -1:
 				if level[3] >= 10:
-					fish("trout")
+					gather("trout")
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
 			elif x == 2 and y == 0:
@@ -784,11 +842,19 @@ async def main():
 			elif x == 6 and y == 7:
 				if "fishing net" in inventory:
 					if level[3] >= 20:
-						fish("anchovies")
+						gather("anchovies")
 					else:
 						print("you cannot fishing in this spot, come back when you are a higher fishing level")
 				else:
 					print("you do not have a fishing net so you cannot fish here")
+			elif x == 7 and y == 7:
+				switchitem("milk", "butter")
+				if true == True:
+					print("you churn the milk into some creamy butter")
+				else:
+					print("you do not have milk to turn into butter")
+			elif x == and 6 y == 8:
+				gather("wood")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 3", "interact three", "3", "three", "i 3", "i3"):
@@ -800,10 +866,12 @@ async def main():
 					print("you collect some water in a near by bucket")
 				else:
 					print("you have no inventory slots available")
+			elif x == -1 and y == 0:
+				gather("wood")
 			elif x == 1 and y == -1:
 				if level[3] >= 10:
 					if level[3] >= 15:
-						fish("pike")
+						gather("pike")
 					else:
 						print("you cannot fishing in this spot, come back when you are a higher fishing level")
 				else:
@@ -837,18 +905,27 @@ async def main():
 				command2 = await input("")
 				command2 = command2.lower()
 				if command2.startswith("sell "):
-					if command2[5:] in ("pearl"):
+					if command2[5:] in ("pearl", "opal"):
 						sellitem(command2[5:])
 						if true == True:
 							if command2[5:] == "pearl":
 								print("you gain 30 gold")
 								gold += 30
+							if command2[5:] == "opal":
+								print("you gain 25 gold")
+								gold += 25
 					else:
 						print("you cannot sell this item here")
 				else:
 					print("you can't do this here")
 			elif x == 7 and y == 6:
-				fish("trout")
+				gather("trout")
+			elif x == 7 and y == 7:
+				switchitem("milk", "cheese")
+				if true == True:
+					print("you press the milk into a block of cheese")
+				else:
+					print("you do not have milk to turn into cheese")
 			else:
 				print("there is no interactable object in that slot")
 		elif command in ("interact 4", "interact four", "4", "four", "i 4", "i4"):
@@ -879,7 +956,7 @@ async def main():
 						print("you can't do this here")
 				else:
 					print("you cannot use anything in the fishing guild, come back when you are a higher fishing level")
-			elif x == 2 and y == 1:
+			elif x == 2 and y == 0:
 				additem("egg")
 				if true == True:
 					print("you grab an egg from the coop")
@@ -945,6 +1022,8 @@ async def main():
 						await battle("siren", 2, 3, 55, 75, 12,"seabeast", "pearl", 5, 0)
 					elif x == 7 and y == 6:
 						await battle("punching bag", 0, 1, 100, 0, 0, "nothing", "", 0, 1)
+					elif x == 7 and y == 6:
+						await battle("ogre", 4, 2, 77, 95, 15, "giant", "opal", 4, 0)
 				else:
 					print("understandable")
 			else:
@@ -975,10 +1054,12 @@ async def main():
 				print("what are you saying?!")
 		elif command == "cookbook":
 			print("RECIPES LEARNED")
+			print("LEGEND| recipe name: ingredients")
 			print("bread: water + flour, heals 25hp")
 			print("carp: raw carp, heals 19hp")
 			print("cake: flour + milk + eggs, heals 16hp, leaves a slice which also heals 16hp")
 			print("beef: raw beef, heals 15hp")
+			print("purpleberry pie: purpleberry + flour + water, heals 10mp, leaves a slice which also heals 10mp")
 			if level[3] >= 10:
 				print("trout: raw trout + flour, heals 28hp")
 			if level[3] >= 15:
@@ -987,6 +1068,7 @@ async def main():
 				print("anchovies: raw anchovies + egg + butter, heals 46hp")
 		elif command == "crafting":
 			print("RECIPES LEARNED")
+			print("LEGEND| recipe name: ingredients")
 			print("candle: wax")
 			if "rune" in upgrades:
 				print("charged summoning rune: summoning rune + raw beef") 
@@ -1006,10 +1088,16 @@ async def main():
 			hp = maxhp
 			level[0] += 1
 			print(f"you advanced a hitpoints level, you are now level {level[0]}. you have also restored all health")
-		for skills in range(3):
+		for skills in range(5):
 			while exp[skills + 1] >= xp(level[skills + 1] + 1):
 				level[skills + 1] += 1
 				print(f"you advanced a {skill[skills + 1]} level, you are now level {level[skills + 1]}")
+		if skillsunlocked > 6:
+			while exp[6] >= xp(level[6] + 1):
+				level[6] += 1
+				maxmp += 10
+				mp = maxmp
+				print(f"you advanced a magic level, you are now level {level[6]}. you have also restored all magic points")
 
 import asyncio
 asyncio.ensure_future(main())
